@@ -73,44 +73,44 @@ def bandwidth_selector(X):
 
 
 
-# def get_P(Y, V, sigma2, gamma, a, div_cur_free_kernels=False):
-#     """GET_P estimates the posterior probability and part of the energy.
-#     Arguments
-#     ---------
-#         Y: 'np.ndarray'
-#             Velocities from the data.
-#         V: 'np.ndarray'
-#             The estimated velocity: V=f(X), f being the vector field function.
-#         sigma2: 'float'
-#             sigma2 is defined as sum(sum((Y - V)**2)) / (N * D)
-#         gamma: 'float'
-#             Percentage of inliers in the samples. This is an inital value for EM iteration, and it is not important.
-#         a: 'float'
-#             Paramerter of the model of outliers. We assume the outliers obey uniform distribution, and the volume of
-#             outlier's variation space is a.
-#         div_cur_free_kernels: `bool` (default: False)
-#             A logic flag to determine whether the divergence-free or curl-free kernels will be used for learning the
-#             vector field.
-#     Returns
-#     -------
-#     P: 'np.ndarray'
-#         Posterior probability, related to equation 27.
-#     E: `np.ndarray'
-#         Energy, related to equation 26.
-#     """
+def get_P(Y, V, sigma2, gamma, a, div_cur_free_kernels=False):
+    """GET_P estimates the posterior probability and part of the energy.
+    Arguments
+    ---------
+        Y: 'np.ndarray'
+            Velocities from the data.
+        V: 'np.ndarray'
+            The estimated velocity: V=f(X), f being the vector field function.
+        sigma2: 'float'
+            sigma2 is defined as sum(sum((Y - V)**2)) / (N * D)
+        gamma: 'float'
+            Percentage of inliers in the samples. This is an inital value for EM iteration, and it is not important.
+        a: 'float'
+            Paramerter of the model of outliers. We assume the outliers obey uniform distribution, and the volume of
+            outlier's variation space is a.
+        div_cur_free_kernels: `bool` (default: False)
+            A logic flag to determine whether the divergence-free or curl-free kernels will be used for learning the
+            vector field.
+    Returns
+    -------
+    P: 'np.ndarray'
+        Posterior probability, related to equation 27.
+    E: `np.ndarray'
+        Energy, related to equation 26.
+    """
 
-#     if div_cur_free_kernels:
-#         Y = Y.reshape((2, int(Y.shape[0] / 2)), order="F").T
-#         V = V.reshape((2, int(V.shape[0] / 2)), order="F").T
+    if div_cur_free_kernels:
+        Y = Y.reshape((2, int(Y.shape[0] / 2)), order="F").T
+        V = V.reshape((2, int(V.shape[0] / 2)), order="F").T
 
-#     D = Y.shape[1]
-#     temp1 = np.exp(-np.sum((Y - V) ** 2, 1) / (2 * sigma2))
-#     temp2 = (2 * np.pi * sigma2) ** (D / 2) * (1 - gamma) / (gamma * a)
-#     temp1[temp1 == 0] = np.min(temp1[temp1 != 0])
-#     P = temp1 / (temp1 + temp2)
-#     E = P.T.dot(np.sum((Y - V) ** 2, 1)) / (2 * sigma2) + np.sum(P) * np.log(sigma2) * D / 2
+    D = Y.shape[1]
+    temp1 = np.exp(-np.sum((Y - V) ** 2, 1) / (2 * sigma2))
+    temp2 = (2 * np.pi * sigma2) ** (D / 2) * (1 - gamma) / (gamma * a)
+    temp1[temp1 == 0] = np.min(temp1[temp1 != 0])
+    P = temp1 / (temp1 + temp2)
+    E = P.T.dot(np.sum((Y - V) ** 2, 1)) / (2 * sigma2) + np.sum(P) * np.log(sigma2) * D / 2
 
-#     return (P[:, None], E) if P.ndim == 1 else (P, E)
+    return (P[:, None], E) if P.ndim == 1 else (P, E)
 
 
 
@@ -175,16 +175,16 @@ def SparseVFC(
     Y: np.ndarray,
     Grid: np.ndarray,
     M: int = 100,
-    # a: float = 5,
+    a: float = 5,
     beta: float = None,
     ecr: float = 1e-5,
-    # gamma: float = 0.9,
-    # lambda_: float = 3,
-    # minP: float = 1e-5,
-    # MaxIter: int = 500,
-    # theta: float = 0.75,
+    gamma: float = 0.9,
+    lambda_: float = 3,
+    minP: float = 1e-5,
+    MaxIter: int = 500,
+    theta: float = 0.75,
     div_cur_free_kernels: bool = False,
-    #velocity_based_sampling: bool = True,
+#     velocity_based_sampling: bool = True,
     sigma: float = 0.8,
     eta: float = 0.5,
     seed=0,
@@ -271,7 +271,7 @@ def SparseVFC(
 
     need_utility_time_measure = verbose > 1
     X_ori, Y_ori = X.copy(), Y.copy()
-    valid_ind = np.arange(Y.shape[0])
+    valid_ind=np.arange(Y.shape[0])
     N, D = Y.shape
     grid_U = None
 
@@ -315,20 +315,68 @@ def SparseVFC(
     # Initialization
     V = X.copy() if div_cur_free_kernels else np.zeros((N, D))
     C = np.zeros((M, 1)) if div_cur_free_kernels else np.zeros((M, D))
-    # i, tecr, E = 0, 1, 1
+    i, tecr, E = 0, 1, 1
     # test this
-    
-    lhs = U.T.dot(U)
-    rhs = U.T.dot(Y)
+    sigma2 = sum(sum((Y - X) ** 2)) / (N * D) if div_cur_free_kernels else sum(sum((Y - V) ** 2)) / (N * D)
+    sigma2 = 1e-7 if sigma2 < 1e-8 else sigma2
+    tecr_vec = np.ones(MaxIter) * np.nan
+    E_vec = np.ones(MaxIter) * np.nan
+    P = None
+    while i < MaxIter and tecr > ecr and sigma2 > 1e-8:
+        # E_step
+        E_old = E
+        P, E = get_P(Y, V, sigma2, gamma, a, div_cur_free_kernels)
+
+        E = E + lambda_ / 2 * np.trace(C.T.dot(K).dot(C))
+        E_vec[i] = E
+        tecr = abs((E - E_old) / E)
+        tecr_vec[i] = tecr
+
+        # logger.report_progress(count=i, total=MaxIter, progress_name="E-step iteration")
+#         if need_utility_time_measure:
+#             logger.info(
+#                 "iterate: %d, gamma: %.3f, energy change rate: %s, sigma2=%s"
+#                 % (i, gamma, scinot(tecr, 3), scinot(sigma2, 3))
+#             )
+
+        # M-step. Solve linear system for C.
+#         temp_logger.log_time()
+        P = np.maximum(P, minP)
+        if div_cur_free_kernels:
+            P = np.kron(P, np.ones((int(U.shape[0] / P.shape[0]), 1)))  # np.kron(P, np.ones((D, 1)))
+            lhs = (U.T * numpy.matlib.tile(P.T, [M, 1])).dot(U) + lambda_ * sigma2 * K
+            rhs = (U.T * numpy.matlib.tile(P.T, [M, 1])).dot(Y)
+        else:
+            UP = U.T * numpy.matlib.repmat(P.T, M, 1)
+            lhs = UP.dot(U) + lambda_ * sigma2 * K
+            rhs = UP.dot(Y)
 #         if need_utility_time_measure:
 #             temp_logger.finish_progress(progress_name="computing lhs and rhs")
 #         temp_logger.log_time()
 
-    C = lstsq_solver(lhs, rhs, method=lstsq_method)#, timeit=need_utility_time_measure
+        C = lstsq_solver(lhs, rhs, method=lstsq_method)#, timeit=need_utility_time_measure
 
-    # Update V and sigma**2
-    V = U.dot(C)
-    sigma2 = sum(sum((Y - V) ** 2)) / (N * D)
+        # Update V and sigma**2
+        V = U.dot(C)
+        Sp = sum(P) / 2 if div_cur_free_kernels else sum(P)
+        sigma2 = (sum(P.T.dot(np.sum((Y - V) ** 2, 1))) / np.dot(Sp, D))#[0]
+
+        # Update gamma
+        numcorr = len(np.where(P > theta)[0])
+        gamma = numcorr / X.shape[0]
+
+        if gamma > 0.95:
+            gamma = 0.95
+        elif gamma < 0.05:
+            gamma = 0.05
+
+        i += 1
+    if i == 0 and not (tecr > ecr and sigma2 > 1e-8):
+        raise Exception(
+            "please check your input parameters, "
+            f"tecr: {tecr}, ecr {ecr} and sigma2 {sigma2},"
+            f"tecr must larger than ecr and sigma2 must larger than 1e-8"
+        )
 
     grid_V = None
     if Grid is not None:
@@ -343,14 +391,14 @@ def SparseVFC(
         "beta": beta,
         "V": V.reshape((N, D)) if div_cur_free_kernels else V,
         "C": C,
-        # "P": P,
-        # "VFCIndex": np.where(P > theta)[0],
+        "P": P,
+        "VFCIndex": np.where(P > theta)[0],
         "sigma2": sigma2,
         "grid": Grid,
         "grid_V": grid_V,
-        # "iteration": i - 1,
-        # "tecr_traj": tecr_vec[:i],
-        # "E_traj": E_vec[:i],
+        "iteration": i - 1,
+        "tecr_traj": tecr_vec[:i],
+        "E_traj": E_vec[:i],
     }
     if div_cur_free_kernels:
         VecFld["div_cur_free_kernels"], VecFld["sigma"], VecFld["eta"] = (
