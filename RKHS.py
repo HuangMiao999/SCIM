@@ -179,7 +179,7 @@ def SparseVFC(
     beta: float = None,
     ecr: float = 1e-5,
     # gamma: float = 0.9,
-    # lambda_: float = 3,
+    lambda_: float = 3,
     # minP: float = 1e-5,
     # MaxIter: int = 500,
     # theta: float = 0.75,
@@ -318,7 +318,7 @@ def SparseVFC(
     # i, tecr, E = 0, 1, 1
     # test this
     
-    lhs = U.T.dot(U)
+    lhs = U.T.dot(U) + lambda_*K
     rhs = U.T.dot(Y)
 #         if need_utility_time_measure:
 #             temp_logger.finish_progress(progress_name="computing lhs and rhs")
