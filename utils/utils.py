@@ -110,6 +110,7 @@ def get_orc(encoder, X, A, L=4, K=2):
     return [orc,orc_eu]
 
 import statsmodels.api as sm
+from scipy.stats import gaussian_kde
 
 def kde_lowess(x,y):
     xy = np.vstack([x,y])
