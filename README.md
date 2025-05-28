@@ -8,9 +8,9 @@ Please run the calculation notebooks first to generate the encoder and curvature
 
 There are three primary parameters:
 
-1. **The number of neighbors $ K_{nei} $ used in constructing the KNN graph**
-2. **The maximal neighbor order $\ K $ considered in neural network loss computation**
-3. **The dimensionality $ L $ of the Gaussian distribution obtained from the embedding**
+1. **The number of neighbors $K_{nei}$ used in constructing the KNN graph**
+2. **The maximal neighbor order $K$ considered in neural network loss computation**
+3. **The dimensionality $L$ of the Gaussian distribution obtained from the embedding**
 
 The selection of the first two parameters is closely related to the total number of cells $ n $. Specifically, for each cell, we aim for the neighbors considered in loss computation to traverse, as comprehensively as possible, all other cells in the dataset. Therefore, the following relationship should be approximately satisfied:
 
