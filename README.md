@@ -8,9 +8,9 @@ Please run the calculation notebooks first to generate the encoder and curvature
 
 There are three primary parameters:
 
-1. **The number of neighbors ( K_nei ) used in constructing the KNN graph**
-2. **The maximal neighbor order \( K \) considered in neural network loss computation**
-3. **The dimensionality \( L \) of the Gaussian distribution obtained from the embedding**
+1. **The number of neighbors $( K_nei )$ used in constructing the KNN graph**
+2. **The maximal neighbor order $\( K \)$ considered in neural network loss computation**
+3. **The dimensionality $\( L \)$ of the Gaussian distribution obtained from the embedding**
 
 The selection of the first two parameters is closely related to the total number of cells \( n \). Specifically, for each cell, we aim for the neighbors considered in loss computation to traverse, as comprehensively as possible, all other cells in the dataset. Therefore, the following relationship should be approximately satisfied:
 
@@ -28,6 +28,6 @@ according to the aforementioned relationship.
 
 ---
 
-## Selection of \( L \)
+Selection of \( L \)
 
 Regarding the selection of \( L \), one may initially choose a relatively large value for \( L \), and subsequently increase the number of training epochs to facilitate potential overfitting. As overfitting progresses, the average variance of the embedded Gaussian distribution will increase continually in some dimensions and gradually stabilize in others. Those dimensions with excessively high variance contribute negligibly to the distance metric; hence, the number of dimensions with stable variance can be regarded as the appropriate value for \( L \). Based on our empirical observations, \( L \) for single-cell data is typically chosen between 6 and 10, though a slightly larger value may be adopted to provide redundancy during training.
