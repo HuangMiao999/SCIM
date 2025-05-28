@@ -8,7 +8,7 @@ Please run the calculation notebooks first to generate the encoder and curvature
 
 There are three primary parameters:
 
-1. **The number of neighbors \( K_{\text{nei}} \) used in constructing the KNN graph**
+1. **The number of neighbors ( K_nei ) used in constructing the KNN graph**
 2. **The maximal neighbor order \( K \) considered in neural network loss computation**
 3. **The dimensionality \( L \) of the Gaussian distribution obtained from the embedding**
 
