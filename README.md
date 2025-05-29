@@ -26,8 +26,10 @@ $$
 
 according to the aforementioned relationship.
 
-Regarding the selection of $L$, one may initially choose a relatively large value for $L$, and subsequently increase the number of training epochs to facilitate potential overfitting. As overfitting progresses, the average variance of the embedded Gaussian distribution will increase continually in some dimensions and gradually stabilize in others. Those dimensions with excessively high variance contribute negligibly to the distance metric; hence, the number of dimensions with stable variance can be regarded as the appropriate value for $L$. Based on our empirical observations, $L$ for single-cell data is typically chosen between 6 and 10, though a slightly larger value may be adopted to provide redundancy during training.
-
 For example，
 
 $$n = 2000,K = 3 \to K_{nei} \in [6.68,12.59]$$
+
+Regarding the selection of $L$, one may initially choose a relatively large value for $L$, and subsequently increase the number of training epochs to facilitate potential overfitting. As overfitting progresses, the average variance of the embedded Gaussian distribution will increase continually in some dimensions and gradually stabilize in others. Those dimensions with excessively high variance contribute negligibly to the distance metric; hence, the number of dimensions with stable variance can be regarded as the appropriate value for $L$. Based on our empirical observations, $L$ for single-cell data is typically chosen between 6 and 10, though a slightly larger value may be adopted to provide redundancy during training.
+
+
