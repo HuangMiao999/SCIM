@@ -14,11 +14,11 @@ There are three primary parameters:
 
 The selection of the first two parameters is closely related to the total number of cells $n$. Specifically, for each cell, we aim for the neighbors considered in loss computation to traverse, as comprehensively as possible, all other cells in the dataset. Therefore, the following relationship should be approximately satisfied:
 
-$$\[
+$$
 n \approx (K_{nei})^K
-\]$$
+$$
 
-According to the original GE article, loss calculation is approximated via sampling expectations; thus, to ensure convergence, it is necessary for each of the $C_K^2$ possible neighbor order combinations to be covered at least once. Considering that excessively large $K$ values impose a heavy sampling burden, $K$ is typically chosen as 2, 3, or 4. In datasets with more uniform density, a larger $K$ is preferable, whereas for more heterogeneous distributions a smaller $K$ is recommended. After determining $K$, $K_{nei}$ may then be selected in the interval
+According to the original GE article, loss calculation is approximated via sampling expectations; thus, to ensure convergence, it is necessary for each of the $C_K^2$ possible neighbor order combinations to be covered at least once. Considering that excessively large $K$ values impose a heavy sampling burden, $K$ is typically chosen as 2, 3, or 4. In datasets with more uniform density, a larger $K$ is preferable, whereas for more heterogeneous distributions a smaller $K$ is recommended. After $K$ is choosen, $K_{nei}$ may then be selected in the interval
 
 $$
 [n^{1/(K+1)},\ n^{1/K}]
